@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: hello-world
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hello-world-html
+  namespace: hello-world
+data:
+  index.html: |
+    <html>
+      <head><title>Hello World</title></head>
+      <body>
+        <h1>Hello World</h1>
+        <h2>Tom's home assignment :)</h2>
+      </body>
+    </html>
