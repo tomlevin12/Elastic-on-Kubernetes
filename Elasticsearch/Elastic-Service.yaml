@@ -6,6 +6,7 @@ metadata:
   labels:
     app: elasticsearch
 spec:
+  cluesteIP: None
   selector:
     app: elasticsearch
     component: elasticsearch
@@ -18,4 +19,3 @@ spec:
       protocol: TCP
       port: 9300
       targetPort: 9300
-  type: ClusterIP
