@@ -16,17 +16,13 @@ data:
           scanner:
             fingerprint.enabled: true
             symlinks: true
-        file_identity.fingerprint: ~
         processors:
           - add_kubernetes_metadata:
               host: minikube
               matchers:
               - logs_path:
                   logs_path: "/var/log/containers/"
-          - fingerprint:
-              fields: ["source.ip"]
-              target_field: "source.fingerprint"
-              ignore_missing: false
+
 
     output.elasticsearch:
       hosts: ["http://elasticsearch:9200"]
@@ -37,14 +33,14 @@ data:
       host: "http://kibana:5601"
       username: "${KIBANA_USERNAME}"
       password: "${KIBANA_PASSWORD}"
-
-    setup.ilm.enabled: false
-    setup.dashboards.enabled: true
+    
+    setup.ilm.enabled: auto
+    setup.ilm.rollover_alias: "filebeat"
+    setup.ilm.pattern: "{now/d}-000001"
+    setup.dashboards.enabled: false
     setup.template.enabled: true
     setup.template.name: "filebeat"
     setup.template.pattern: "filebeat-*"
     setup.template.settings:
       index.number_of_shards: 1
       index.number_of_replicas: 0
-
-    logging.level: debug

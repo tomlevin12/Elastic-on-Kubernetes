@@ -16,28 +16,6 @@ spec:
     spec:
       serviceAccountName: filebeat
       terminationGracePeriodSeconds: 30
-      volumes:
-        - name: varlogcontainers
-          hostPath:
-            path: /var/log/containers
-        - name: config
-          configMap:
-            name: filebeat-config
-        - name: secrets
-          secret:
-            secretName: elasticsearch-creds
-      initContainers:
-        - name: filebeat-setup
-          image: docker.elastic.co/beats/filebeat:7.12.0
-          command: ["/bin/bash", "-c"]
-          args:
-            - filebeat setup --index-management -E output.elasticsearch.hosts=["http://elasticsearch:9200"]
-              -E output.elasticsearch.username="${ELASTICSEARCH_USERNAME}"
-              -E output.elasticsearch.password="${ELASTICSEARCH_PASSWORD}"
-              -E setup.kibana.host="http://kibana:5601"
-          envFrom:
-            - secretRef:
-                name: elasticsearch-creds
       containers:
         - name: filebeat
           image: docker.elastic.co/beats/filebeat:7.12.0
@@ -46,8 +24,6 @@ spec:
               privileged: true
           args: ["-c", "/etc/filebeat.yml", "-e"]
           env:
-            - name: ELASTICSEARCH_URL
-              value: "http://elasticsearch:9200"
             - name: ELASTICSEARCH_USERNAME
               valueFrom:
                 secretKeyRef:
@@ -58,8 +34,17 @@ spec:
                 secretKeyRef:
                   name: elasticsearch-creds
                   key: ELASTIC_PASSWORD
-            - name: KIBANA_URL
-              value: "http://kibana:5601"
+            - name: KIBANA_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: elasticsearch-creds
+                  key: KIBANA_USERNAME
+            - name: KIBANA_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: elasticsearch-creds
+                  key: KIBANA_PASSWORD
+
           volumeMounts:
               - name: config
                 mountPath: /etc/filebeat.yml
